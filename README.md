@@ -27,3 +27,8 @@ cd client -> npm i
 ```
 REACT_APP_SERVER_URL="http://localhost:1234/"
 ```
+
+### user registration
+
+frontend has fully working /login and /register routes
+opon registration it will create user with USER role. To make user an ADMIN, it needs to be set manually in the db.
