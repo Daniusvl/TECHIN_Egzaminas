@@ -14,7 +14,7 @@ const categoryValidation =
 {
     custom:{
         options: (v) => {
-            if(!CATEGORIES.inclues(v)){
+            if(!CATEGORIES.includes(v)){
                 throw new Error("Invalid category");
             }
             return true;

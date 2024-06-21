@@ -3,11 +3,13 @@ import { isValidMongooseId } from "../shared/commonValidation.mjs";
 
 
 const scoreValidator = {
-    custom: v => {
-        if(v < 0 || v > 5){
-            throw new Error("Score must be between 0 and 5");
+    custom: {
+        options: v => {
+            if(v < 0 || v > 5){
+                throw new Error("Score must be between 0 and 5");
+            }
+            return true;
         }
-        return true;
     }
 };
 
@@ -40,7 +42,7 @@ export const getByIdValidation = checkSchema({
 });
 
 export const getProcedureAvgScoreValidation = checkSchema({
-    prcedureId: {
+    procedureId: {
         custom: isValidMongooseId
     }
 })

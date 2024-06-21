@@ -11,6 +11,6 @@ const procedureRouter = express.Router();
 procedureRouter.post("/", [authMiddleware(ADMIN), createValidation, validationMiddleware], procedureController.createProcedure);
 procedureRouter.put("/", [authMiddleware(ADMIN), updateValidation, validationMiddleware], procedureController.updateProcedure);
 procedureRouter.delete("/:id", [authMiddleware(ADMIN), deleteValidation, validationMiddleware], procedureController.deleteProcedure);
-procedureRouter.get("/get/:id", [authMiddleware(USER), getByIdValidation, validationMiddleware], procedureController.getProcedureById);
-procedureRouter.get("/get", [authMiddleware(USER)], procedureController.getAllProcedures);
+procedureRouter.get("/get/:id", [authMiddleware(USER, ADMIN), getByIdValidation, validationMiddleware], procedureController.getProcedureById);
+procedureRouter.get("/get", [authMiddleware(USER, ADMIN)], procedureController.getAllProcedures);
 export {procedureRouter}
