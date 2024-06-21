@@ -1,4 +1,4 @@
-import procedureRegistration from "./procedureRegistration.mjs";
+import procedureRegistrationModel from "./procedureRegistrationModel.mjs";
 import { responseMessage } from "../shared/responseMessage.mjs";
 
 const NOT_FOUND = responseMessage("procedure registration not found");
@@ -11,7 +11,7 @@ export const procedureRegistrationController = {
                 procedureId, userId: req.user._id, isApproved: false
             }
 
-            const result = await procedureRegistration.create(newProcedureRegistration);
+            const result = await procedureRegistrationModel.create(newProcedureRegistration);
 
             return res.status(201).json(result);
         } catch (error) {
@@ -23,7 +23,7 @@ export const procedureRegistrationController = {
         try {
             const { _id, procedureId } = req.body;
 
-            const procedureRegistration = await procedureRegistration.findById(_id);
+            const procedureRegistration = await procedureRegistrationModel.findById(_id);
             if(!procedureRegistration){
                 return res.status(404).json(NOT_FOUND);
             }
@@ -39,7 +39,7 @@ export const procedureRegistrationController = {
 
     approveProcedureRegistration: async (req, res, next) => {
         try {
-            const procedureRegistration = await procedureRegistration.findById(req.params.id);
+            const procedureRegistration = await procedureRegistrationModel.findById(req.params.id);
             if(!procedureRegistration){
                 return res.status(404).json(NOT_FOUND);
             }
@@ -55,7 +55,7 @@ export const procedureRegistrationController = {
 
     deleteProcedureRegistration: async (req, res, next) => {
         try {
-            const procedureRegistration = await procedureRegistration.findOneAndDelete({_id: req.params.id});
+            const procedureRegistration = await procedureRegistrationModel.findOneAndDelete({_id: req.params.id});
             if(!procedureRegistration){
                 return res.status(404).json(NOT_FOUND);
             }
@@ -66,9 +66,9 @@ export const procedureRegistrationController = {
         }
     },
 
-    getProcedureById: async (req, res, next) => {
+    getProcedureRegistrationById: async (req, res, next) => {
         try {
-            const procedure = await procedureModel.findById(req.params.id);
+            const procedure = await procedureRegistrationModel.findById(req.params.id);
 
             if(!procedure){ 
                 return res.status(404).json(NOT_FOUND);
@@ -82,7 +82,17 @@ export const procedureRegistrationController = {
 
     getAllProcedureRegistrations: async (req, res, next) => {
         try {
-            const procedureRegistrations = await procedureRegistration.find();
+            const procedureRegistrations = await procedureRegistrationModel.find();
+            return res.status(200).json(procedureRegistrations);
+        }
+        catch (error) {
+            next(error);
+        }
+    },
+
+    getMyProcedureRegistrations: async (req, res, next) => {
+        try {
+            const procedureRegistrations = await procedureRegistrationModel.find({userId: req.user._id});
             return res.status(200).json(procedureRegistrations);
         }
         catch (error) {

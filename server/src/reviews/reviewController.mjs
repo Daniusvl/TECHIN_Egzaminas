@@ -1,50 +1,48 @@
 import reviewModel from "./reviewModel.mjs";
+import procedureRegistrationModel from "../procedureRegistrations/procedureRegistrationModel.mjs";
 import { responseMessage } from "../shared/responseMessage.mjs";
 
-const NOT_FOUND = responseMessage("procedure not found");
+const NOT_FOUND = responseMessage("review not found");
 
 export const reviewController = {
-    createProcedure: async (req, res, next) => {
+    createReview: async (req, res, next) => {
         try {
-            const {name, category, date, img} = req.body;
-            const newProcedure = {
-                name, category, date, img
+            const {procedureRegistrationId, score} = req.body;
+
+            const newReview = {
+                userId: req.user._id, 
+                score,
+                procedureRegistrationId
             }
 
-            const result =await procedureModel.create(newProcedure);
-            
+            const result = await reviewModel.create(newReview);
 
             return res.status(201).json(result);
+
         } catch (error) {
             next(error);
         }
     },
 
-    updateProcedure: async (req, res, next) => {
+    updateReview: async (req, res, next) => {
         try {
-            const {_id, name, category, date, img} = req.body;
+            const {_id, score} = req.body;
 
-            const procedure = await procedureModel.findById(_id);
-            if(!procedure){
-                return res.status(404).json(NOT_FOUND);
-            }
-
-            procedure.name = name;
-            procedure.category = category;
-            procedure.date = date;
-            procedure.img = img;
-            await procedure.save();
-
-            return res.status(200).json({token});
+            const review = await reviewModel.findById(_id);
+            review.score = score;
+            await review.save();
+            
+            return res.status(200).json(review);
         } catch (error) {
             next(error);
         }
     },
 
-    deleteProcedure: async (req, res, next) => {
+    deleteReview: async (req, res, next) => {
         try {
-            const procedure = await procedureModel.findOneAndDelete({_id: id});
-            if(!procedure){
+            const review = await reviewModel.findOneAndDelete({_id: req.params.id});
+            
+            if(!review){
                 return res.status(404).json(NOT_FOUND);
             }
 
@@ -54,27 +52,58 @@ export const reviewController = {
         }
     },
 
-    getProcedureById: async (req, res, next) => {
+    getReviewById: async (req, res, next) => {
         try {
-            const procedure = await procedureModel.findById(req.params.id);
-
-            if(!procedure){ 
-                return res.status(404).json(NOT_FOUND);
-            }
-
-            return res.status(200).json(procedure);
+            const review = await reviewModel.findById(req.params.id);
+            return res.status(200).json(review);
         } catch (error) {
             next(error);
         }
     },
 
-    getAllProcedures: async (req, res, next) => {
+    getMyReviews: async (req, res, next) => {
         try {
-            const procedures = await procedureModel.find();
-            return res.status(200).json(procedures);
+            const reviews = await reviewModel.find({userId: req.user._id});
+            return res.status(200).json(reviews);
         }
         catch (error) {
             next(error);
         }
-    }
+    },
+
+    getProcedureAvgScore: async (req, res, next) => {
+        try {
+            const {procedureId} = req.params;
+            const reviews = await reviewModel.aggregate([
+                {
+                    $lookup: {
+                        from: "ProcedureRegistrations",
+                        localField: "procedureRegistrationId",
+                        foreignField: "_id",
+                        as: "procedureRegistration",
+                        pipeline: [
+                            {
+                                $match: {
+                                    procedureId
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        avgScore: {
+                            $avg: "$score"
+                        }
+                    }
+                }
+            ]);
+
+            return res.status(200).json(reviews[0].avgScore);
+        }
+        catch (error) {
+            next(error);
+        }
+    },
 };
