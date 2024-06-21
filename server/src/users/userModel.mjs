@@ -1,0 +1,7 @@
+
+
+
+const userModel = {
+    id: {},
+    email: {}
+}

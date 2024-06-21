@@ -9,3 +9,4 @@ chrome-user-data
 dist
 .vscode
 .env
+.ssh
