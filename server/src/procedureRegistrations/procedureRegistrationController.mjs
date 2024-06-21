@@ -3,6 +3,8 @@ import { responseMessage } from "../shared/responseMessage.mjs";
 
 const NOT_FOUND = responseMessage("procedure registration not found");
 
+const ACCESS_DENIED = responseMessage("access denied");
+
 export const procedureRegistrationController = {
     createProcedureRegistration: async (req, res, next) => {
         try {
@@ -26,6 +28,10 @@ export const procedureRegistrationController = {
             const procedureRegistration = await procedureRegistrationModel.findById(_id);
             if(!procedureRegistration){
                 return res.status(404).json(NOT_FOUND);
+            }
+
+            if(!procedureRegistration.userId.equals(req.user._id)){
+                return res.status(403).json(ACCESS_DENIED);
             }
 
             procedureRegistration.procedureId = procedureId;
@@ -58,6 +64,10 @@ export const procedureRegistrationController = {
             const procedureRegistration = await procedureRegistrationModel.findOneAndDelete({_id: req.params.id});
             if(!procedureRegistration){
                 return res.status(404).json(NOT_FOUND);
+            }
+
+            if(!procedureRegistration.userId.equals(req.user._id)){
+                return res.status(403).json(ACCESS_DENIED);
             }
 
             return res.status(204).json();
