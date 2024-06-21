@@ -14,6 +14,9 @@ const procedureModel = Schema(
         category: { type: String, enum: CATEGORIES, required: true, default: C1 },
         date: { type: String, required: true },
         imgPath: { type: String, required: true },
+    },
+    { 
+        versionKey: false 
     }
 );
 

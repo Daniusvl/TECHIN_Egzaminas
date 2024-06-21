@@ -4,6 +4,9 @@ const reviewModel = Schema(
     {
         procedureRegistrationId: {type: Types.ObjectId, unique: true, ref: "ProcedureRegistration", required: true},
         score: { type: Number, required: true },
+    },
+    { 
+        versionKey: false 
     }
 );
 
