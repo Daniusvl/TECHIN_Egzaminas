@@ -12,7 +12,7 @@ reviewRouter.post("/", [authMiddleware(USER), createValidation, validationMiddle
 reviewRouter.put("/", [authMiddleware(USER), updateValidation, validationMiddleware], reviewController.updateReview);
 reviewRouter.delete("/:id", [authMiddleware(USER), deleteValidation, validationMiddleware], reviewController.deleteReview);
 reviewRouter.get("/:id", [authMiddleware(USER), getByIdValidation, validationMiddleware], reviewController.getReviewById);
-reviewRouter.get("/avgScore/:procedureId", [authMiddleware(USER), getProcedureAvgScoreValidation, validationMiddleware], reviewController.getProcedureAvgScore);
+reviewRouter.get("/avgScore/:procedureId", [authMiddleware(USER, ADMIN), getProcedureAvgScoreValidation, validationMiddleware], reviewController.getProcedureAvgScore);
 
 
 export {reviewRouter}

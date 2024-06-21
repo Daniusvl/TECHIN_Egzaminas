@@ -4,13 +4,32 @@ import { responseMessage } from "../shared/responseMessage.mjs";
 
 const NOT_FOUND = responseMessage("review not found");
 
+const REGISTRATION_NOT_FOUND = responseMessage("procedure registration not found");
+
+const ACCESS_DENIED = responseMessage("access denied");
+
+const ALREADY_EXISTS = responseMessage("review already exists");
+
 export const reviewController = {
     createReview: async (req, res, next) => {
         try {
             const {procedureRegistrationId, score} = req.body;
 
+            const procedureRegistration = await procedureRegistrationModel.findById(procedureRegistrationId);
+            if(!procedureRegistration){
+                return res.status(404).json(REGISTRATION_NOT_FOUND);
+            }
+
+            if(!procedureRegistration.userId.equals(req.user._id)){
+                return res.status(403).json(ACCESS_DENIED);
+            }
+
+            const review = await reviewModel.findOne({procedureRegistrationId});
+            if(review){
+                return res.status(409).json(ALREADY_EXISTS);
+            }
+
             const newReview = {
-                userId: req.user._id, 
                 score,
                 procedureRegistrationId
             }
@@ -29,6 +48,12 @@ export const reviewController = {
             const {_id, score} = req.body;
 
             const review = await reviewModel.findById(_id);
+
+            const procedureRegistration = await procedureRegistrationModel.findById(review.procedureRegistrationId);
+            if(!procedureRegistration.userId.equals(req.user._id)){
+                return res.status(403).json(ACCESS_DENIED);
+            }
+
             review.score = score;
             await review.save();
             
@@ -40,11 +65,18 @@ export const reviewController = {
 
     deleteReview: async (req, res, next) => {
         try {
-            const review = await reviewModel.findOneAndDelete({_id: req.params.id});
-            
+            const review = await reviewModel.findById(req.params.id);
+        
             if(!review){
                 return res.status(404).json(NOT_FOUND);
             }
+
+            const procedureRegistration = await procedureRegistrationModel.findById(review.procedureRegistrationId);
+            if(!procedureRegistration.userId.equals(req.user._id)){
+                return res.status(403).json(ACCESS_DENIED);
+            }
+
+            await review.remove();
 
             return res.status(204).json();
         } catch (error) {
