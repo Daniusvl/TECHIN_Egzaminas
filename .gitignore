@@ -9,4 +9,5 @@ chrome-user-data
 dist
 .vscode
 .env
-.ssh
+key
+key.pub
