@@ -1,0 +1,11 @@
+node_modules
+build/
+chrome-user-data
+.idea
+*.iml
+.vscode
+*.swp
+*.swo
+dist
+.vscode
+.env
