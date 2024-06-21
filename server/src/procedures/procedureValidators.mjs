@@ -2,6 +2,8 @@ import { checkSchema } from "express-validator";
 import { isValidMongooseId } from "../shared/commonValidation.mjs";
 import { CATEGORIES } from "./procedureModel.mjs";
 
+export const imageExtensions = [".png", ".jpeg", ".jpg"];
+
 const nameValidation = 
 {
     isLength: {
@@ -29,13 +31,24 @@ const dateValidation = {
     },
 }
 
-const imgValidation = {}
-
 export const createValidation = checkSchema({
     name: nameValidation,
     category: categoryValidation,
     date: dateValidation,
-    img: imgValidation
+    image:{
+        custom: {
+            options: (value, { req }) => {
+                if(!req.files || !req.files.image){
+                    throw new Error("image must be provided");
+                }
+                const { image } = req.files;
+                if(image.name && imageExtensions.filter(ext => image.name.includes(ext)).length > 0){
+                    return true;
+                }
+                throw new Error(`image must be a file with specified extensions ${imageExtensions.join(", ")}`);
+            }
+        }
+    }
 });
 
 export const updateValidation = checkSchema({
@@ -45,7 +58,20 @@ export const updateValidation = checkSchema({
     name: nameValidation,
     category: categoryValidation,
     date: dateValidation,
-    img: imgValidation
+    image:{
+        custom: {
+            options: (value, { req }) => {
+                if(!req.files || !req.files.image){
+                    return true;
+                }
+                const { image } = req.files;
+                if(image.name && imageExtensions.filter(ext => image.name.includes(ext)).length > 0){
+                    return true;
+                }
+                throw new Error(`image must be a file with specified extensions ${imageExtensions.join(", ")}`);
+            }
+        }
+    }
 });
 
 export const deleteValidation = checkSchema({

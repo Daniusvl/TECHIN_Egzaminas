@@ -11,3 +11,4 @@ dist
 .env
 key
 key.pub
+public
